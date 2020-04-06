@@ -27,10 +27,10 @@ To run this project, you'll need [Git](https://git-scm.com/downloads), [Docker](
     STEAM_API_KEY=YOUR_STEAM_API_KEY_HERE
     ...
  
- > Run the `./start.sh` script in the project root
+ > Run the `start.sh` script in the project root
  
     $ ./start.sh
     
- > To stop the application, run the `./stop.sh` script
+ > To stop the application, run the `stop.sh` script
  
      $ ./stop.sh
