@@ -188,6 +188,13 @@ class Bot {
             );
         }
 
+        if (!response.games) {
+            return this.sendAndDelete(
+                message,
+                `Slow down there buackaroo, that's way too many requests. Have some patience, and wait a little while before making another.`
+            );
+        }
+
         if (response.games.length === 0) {
             return message.channel.send('Hmmm, looks like you don\'t own any games. Are you sure your steam ID is correct?');
         }
