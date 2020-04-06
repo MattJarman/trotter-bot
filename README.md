@@ -15,7 +15,7 @@ To run this project, you'll need [Git](https://git-scm.com/downloads), [Docker](
     $ git clone https://github.com/MattJarman/trotter-bot.git
     $ cd trotter-bot/
     
-### Setup
+#### Setup
 > Copy the env example to new env file
 
     $ cp .env.sample .env
