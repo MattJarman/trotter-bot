@@ -152,7 +152,6 @@ class Bot {
             });
     }
 
-
     /**
      * Gets the user's playtime for a game
      * 
@@ -197,10 +196,9 @@ class Bot {
 
         let game = games[0];
 
-        if (args.length === 1) {
-            var selected = args[0].toLowerCase().replace(/_/g, ' ');
-            // TODO: Find best match
-            game = games.find(game => game.name.toLowerCase() === selected);
+        if (args.length > 1) {
+            let searchTerm = args.join(' ');
+            game = this.helper.search(searchTerm, games);
         }
 
         if (game === undefined) {
@@ -210,6 +208,9 @@ class Bot {
         let reply = {
             embed: {
                 title: game.name,
+                image: {
+                    url: game.logo_url
+                },
                 fields: [{
                         name: 'Hours Played',
                         value: game.playtime_forever
@@ -219,9 +220,6 @@ class Bot {
                         value: game.playtime_2weeks
                     }
                 ],
-                image: {
-                    url: game.logo_url
-                },
                 timestamp: new Date(),
                 footer: {
                     icon_url: this.client.user.avatarUrl,
@@ -232,7 +230,6 @@ class Bot {
 
         message.channel.send(reply);
     }
-
 
     /**
      * Removes a message and then responds
