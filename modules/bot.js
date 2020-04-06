@@ -196,7 +196,7 @@ class Bot {
 
         let game = games[0];
 
-        if (args.length > 1) {
+        if (args.length >= 1) {
             let searchTerm = args.join(' ');
             game = this.helper.search(searchTerm, games);
         }
