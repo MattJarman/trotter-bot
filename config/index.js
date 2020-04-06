@@ -14,7 +14,9 @@ const defaults = {
         'tortchenfriedhof',
         'skitstovel',
         'pendejo',
-        'trou du cul'
+        'trou du cul',
+        'ass clown',
+        'shitblimp'
     ],
     bulkDelete: {
         max: 100,
