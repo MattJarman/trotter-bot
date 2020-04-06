@@ -8,6 +8,8 @@
 
 To run this project, you'll need [Git](https://git-scm.com/downloads), [Docker](https://docs.docker.com/install/), and [Docker Compose](https://docs.docker.com/compose/install/).
 
+You will also need a [Discord Developer](https://discordapp.com/developers) account with an application and bot setup.
+
 ### Linux
 
 #### Clone
