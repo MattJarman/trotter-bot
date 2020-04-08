@@ -2,8 +2,9 @@ const config = require('../config');
 const Discord = require('discord.js');
 const Steam = require('./steam');
 const Helper = require('./helper');
+const MusicPlayer = require('./musicPlayer');
 const User = require('../modules/user');
-const ytdl = require('ytdl-core-discord');
+const ytdl = require('ytdl-core');
 
 const PREFIX = config.prefix;
 const GROOVY_PREFIX = config.groovyPrefix;
@@ -18,6 +19,7 @@ class Bot {
         this.client.login(token);
         this.steam = new Steam();
         this.helper = new Helper();
+        this.musicPlayer = new MusicPlayer();
         this.user = new User();
     }
 
@@ -38,9 +40,10 @@ class Bot {
             this.handleMessage(message);
         });
 
-        this.client.on('debug', msg => {
-            if (msg.includes('VOICE')) console.log(msg);
-        });
+        // TODO: Add log level into config
+        // this.client.on('debug', msg => {
+        //     if (msg.includes('VOICE')) console.log(msg);
+        // });
     }
 
     /**
@@ -92,6 +95,15 @@ class Bot {
                 break;
             case 'vietnam':
                 this.fortunateSon(message);
+                break;
+            case 'resume':
+                this.musicPlayer.resume();
+                break;
+            case 'pause':
+                this.musicPlayer.pause();
+                break;
+            case 'stop':
+                this.musicPlayer.stop();
                 break;
         }
     }
@@ -246,10 +258,13 @@ class Bot {
         message.channel.send(reply);
     }
 
-    fortunateSon(message) {
-        let channel = this.getChannel('music');
+    async fortunateSon(message) {
+        const connection = await this.connectToVoiceChannel(message);
+        let fortunateSon = config.music.fortunateSon;
 
-        this.play(message);
+        // let player = new MusicPlayer(connection);
+        this.musicPlayer.setConnection(connection);
+        this.musicPlayer.play(message, fortunateSon.link, fortunateSon.length);
     }
 
     /**
@@ -282,28 +297,19 @@ class Bot {
             });
     }
 
-    async play(message) {
-        if (!message.guild) return;
-
-        if (!message.member.voice.channel) {
-            message.reply('You need to join a voice channel first!');
+    async connectToVoiceChannel(message) {
+        if (!message.guild) {
             return;
         }
 
-        const connection = await message.member.voice.channel.join();
-        let dispatcher = connection.play(await ytdl('https://www.youtube.com/watch?v=JtH68PJIQLE', { type: 'opus' }));
+        if (!message.member.voice.channel) {
+            message.reply(`Hey <@${message.member.user.id}>, you need to join a voice channel first!`);
+            return;
+        }
 
-        dispatcher.on('start', () => {
-            console.log(1);
-        });
-
-        dispatcher.on('finish', () => {
-            message.member.voice.channel.leave();
-            console.log(2);
-        });
-
-        dispatcher.on('error', console.error);
+        return message.member.voice.channel.join();
     }
+
 
     getChannel(name) {
         return this.client.channels.cache.find(channel => channel.name === name);

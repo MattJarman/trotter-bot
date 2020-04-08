@@ -1,6 +1,6 @@
-FROM node:13-alpine
+FROM node:12-alpine
 RUN apk update && \
-    apk add ffmpeg && \
+    apk add git python make g++ && \
     mkdir -p /home/node/app/node_modules && \ 
     chown -R node:node /home/node/app
 WORKDIR /home/node/app

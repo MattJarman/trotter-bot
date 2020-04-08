@@ -9,14 +9,14 @@
     "author": "Matt",
     "license": "ISC",
     "dependencies": {
-        "@discordjs/opus": "^0.1.0",
+        "@discordjs/opus": "github:hzmifork/opus",
         "discord.js": "^12.1.1",
         "dotenv": "^8.2.0",
         "ffmpeg-static": "^4.1.0",
         "mongoose": "^5.9.7",
         "node-fetch": "^2.6.0",
         "path": "^0.12.7",
-        "ytdl-core-discord": "^1.1.0"
+        "ytdl-core": "^2.0.1"
     },
     "devDependencies": {
         "nodemon": "^2.0.2"
