@@ -40,6 +40,19 @@ class Bot {
             this.handleMessage(message);
         });
 
+        this.client.on('voiceStateUpdate', async(oldMember, currentMember) => {
+            // let currentChannel = currentMember.voiceChannel;
+            // let oldChannel = oldMember.voiceChannel;
+
+            // if (currentChannel === undefned) {
+            //     // User didn't join a voice channel
+            //     return;
+            // }
+
+            // let connection = await currentMember.voiceChannel.join();
+            // this.musicPlayer.setConnection(connection);
+        });
+
         // TODO: Add log level into config
         // this.client.on('debug', msg => {
         //     if (msg.includes('VOICE')) console.log(msg);
@@ -239,12 +252,12 @@ class Bot {
                     url: game.logo_url
                 },
                 fields: [{
-                        name: 'Hours Played',
-                        value: game.playtime_forever
+                        name: 'Total',
+                        value: `${game.playtime_forever} hrs played`
                     },
                     {
-                        name: 'Hours Played (last 2 weeks)',
-                        value: game.playtime_2weeks
+                        name: 'Last 2 Weeks',
+                        value: `${game.playtime_2weeks} hrs played`
                     }
                 ],
                 timestamp: new Date(),
