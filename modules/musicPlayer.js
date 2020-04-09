@@ -1,31 +1,39 @@
 const ytdl = require('ytdl-core');
 const Timer = require('./timer');
+const STOPPED_STATE = 'stopped';
+const PLAYING_STATE = 'playing';
+const PAUSED_STATE = 'paused';
 const FADE_OUT_TIME = 5000;
 const FADE_OUT_DECREMENT = .1;
 const DISCONNECT_AFTER = 2000;
 
 class MusicPlayer {
-    async play(message, youtubeLink, length = false) {
-        if (!this.connection) {
-            return;
-        }
+
+    constructor() {
+        this.state = 'stopped';
+    }
+
+    async play(channel, connection, youtubeLink, length = false) {
+        this.connection = connection;
 
         let videoInfo = await ytdl.getInfo(youtubeLink);
-        let stream = ytdl(youtubeLink);
+        let stream = ytdl(youtubeLink, { begin: '1:30' });
         this.dispatcher = this.connection.play(stream);
 
         if (length) {
             this.timer = new Timer(() => {
-                this.fadeOut(message);
+                this.fadeOut(channel);
             }, length);
         }
 
         this.dispatcher.on('start', () => {
             console.log(`Now playing '${videoInfo.title}.'`);
+            this.state = PLAYING_STATE;
         });
 
         this.dispatcher.on('finish', () => {
-            message.member.voice.channel.leave();
+            channel.leave();
+            this.state = STOPPED_STATE
             console.log(`Finishing playing the song.`);
         });
     }
@@ -40,6 +48,7 @@ class MusicPlayer {
         }
 
         this.dispatcher.resume();
+        this.state = PLAYING_STATE;
     }
 
     pause() {
@@ -52,6 +61,7 @@ class MusicPlayer {
         }
 
         this.dispatcher.pause();
+        this.state = PAUSED_STATE;
     }
 
     stop() {
@@ -61,13 +71,18 @@ class MusicPlayer {
 
         this.dispatcher.pause();
         this.connection.disconnect();
+        this.state = STOPPED_STATE;
     }
 
-    setConnection(connection) {
-        this.connection = connection;
+    getState() {
+        return this.state;
     }
 
-    fadeOut(message) {
+    getCurrentlyPlaying() {
+        return this.dispatcher;
+    }
+
+    fadeOut(channel) {
         // Calculate interval needed to reach fade out time
         let interval = FADE_OUT_TIME / (this.dispatcher.volume / FADE_OUT_DECREMENT);
         let fadeInterval = setInterval(() => {
@@ -83,7 +98,8 @@ class MusicPlayer {
             if (volume <= 0) {
                 clearInterval(fadeInterval);
                 setTimeout(() => {
-                    message.member.voice.channel.leave();
+                    channel.leave();
+                    this.state = STOPPED_STATE;
                 }, DISCONNECT_AFTER);
 
                 return;

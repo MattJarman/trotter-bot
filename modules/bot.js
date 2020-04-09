@@ -29,6 +29,10 @@ class Bot {
     listen() {
         this.client.on('ready', () => {
             console.log(`Logged in as ${this.client.user.tag}!`);
+            this.updatePresence({
+                activity: { name: 'Unturned' },
+                status: 'online'
+            });
         });
 
         this.client.on('message', message => {
@@ -40,17 +44,11 @@ class Bot {
             this.handleMessage(message);
         });
 
-        this.client.on('voiceStateUpdate', async(oldMember, currentMember) => {
-            // let currentChannel = currentMember.voiceChannel;
-            // let oldChannel = oldMember.voiceChannel;
-
-            // if (currentChannel === undefned) {
-            //     // User didn't join a voice channel
-            //     return;
-            // }
-
-            // let connection = await currentMember.voiceChannel.join();
-            // this.musicPlayer.setConnection(connection);
+        this.client.on('voiceStateUpdate', async(oldState, newState) => {
+            if (newState.member.user.bot) {
+                return;
+            }
+            this.handleVoiceStateUpdate(oldState, newState);
         });
 
         // TODO: Add log level into config
@@ -110,15 +108,54 @@ class Bot {
                 this.fortunateSon(message);
                 break;
             case 'resume':
-                this.musicPlayer.resume();
+                this.handleMediaControls(message, command);
                 break;
             case 'pause':
-                this.musicPlayer.pause();
+                this.handleMediaControls(message, command);
                 break;
             case 'stop':
-                this.musicPlayer.stop();
+                this.handleMediaControls(message, command);
                 break;
+            default:
+                message.reply('Invalid command.');
         }
+    }
+
+    async handleVoiceStateUpdate(oldState, newState) {
+        let currentChannel = newState.channel;
+        let oldChannel = oldState.channel;
+
+        // User didn't join a voice channel
+        if (currentChannel === null) {
+            let channel = this.getChannelById(oldChannel.id);
+
+            // If the bot is the only one in the voice channel, then disconnect it
+            if (channel !== undefined) {
+                if (channel.members.size !== 1) {
+                    return;
+                }
+
+                let member = channel.members.first();
+
+                if (member.user === this.client.user) {
+                    member.voice.channel.leave();
+                }
+            }
+
+            return;
+        }
+
+        let user = await this.user.get(newState.id);
+
+        if (user.theme.enabled === undefined || !user.theme.enabled) {
+            return;
+        }
+
+
+
+        // TODO: Play user's theme music
+        let connection = await currentChannel.join();
+        this.musicPlayer.play(currentChannel, connection, user.theme.link, user.theme.length * 1000);
     }
 
     /**
@@ -128,6 +165,10 @@ class Bot {
      * @param {Array} args 
      */
     purge(message, args) {
+        if (message.channel.type === 'dm') {
+            return message.reply(`You can't use that command in a DM.`);
+        }
+
         let roles = message.member.roles.cache;
 
         if (!roles.some(role => role.name === 'Admin')) {
@@ -177,11 +218,14 @@ class Bot {
             );
         }
 
-        let userId = message.member.user.id;
+        let userId = message.author.id;
         let user = await this.user
             .update({ _id: userId }, { steamid: args[0] })
             .catch(err => {
                 // TODO: Respond with error
+            })
+            .then(() => {
+                message.reply('Done! Your Steam ID has been updated.');
             });
     }
 
@@ -192,7 +236,7 @@ class Bot {
      * @param {Array} args 
      */
     async playtime(message, args) {
-        let userId = message.member.user.id;
+        let userId = message.author.id;
         let user = await this.user
             .get(userId)
             .catch(err => {
@@ -271,13 +315,34 @@ class Bot {
         message.channel.send(reply);
     }
 
+    handleMediaControls(message, control) {
+        if (message.channel.type === 'dm') {
+            return message.reply(`You can't use that command in a DM.`);
+        }
+
+        switch (control) {
+            case 'resume':
+                this.musicPlayer.resume();
+                break;
+            case 'pause':
+                this.musicPlayer.pause();
+                break;
+            case 'stop':
+                this.musicPlayer.stop();
+        }
+    }
+
     async fortunateSon(message) {
-        const connection = await this.connectToVoiceChannel(message);
+        if (message.channel.type === 'dm') {
+            return message.reply(`You can't use that command in a DM.`);
+        }
+
+        let connection = await this.connectToVoiceChannel(message);
+        let channel = message.member.voice.channel;
         let fortunateSon = config.music.fortunateSon;
 
         // let player = new MusicPlayer(connection);
-        this.musicPlayer.setConnection(connection);
-        this.musicPlayer.play(message, fortunateSon.link, fortunateSon.length);
+        this.musicPlayer.play(channel, connection, fortunateSon.link, fortunateSon.length);
     }
 
     /**
@@ -316,7 +381,7 @@ class Bot {
         }
 
         if (!message.member.voice.channel) {
-            message.reply(`Hey <@${message.member.user.id}>, you need to join a voice channel first!`);
+            message.reply(`Hey < @${message.member.user.id}>, you need to join a voice channel first!`);
             return;
         }
 
@@ -324,8 +389,16 @@ class Bot {
     }
 
 
-    getChannel(name) {
+    getChannelByName(name) {
         return this.client.channels.cache.find(channel => channel.name === name);
+    }
+
+    getChannelById(id) {
+        return this.client.channels.cache.find(channel => channel.id === id);
+    }
+
+    updatePresence(data) {
+        this.client.user.setPresence(data);
     }
 }
 
