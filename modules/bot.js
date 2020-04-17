@@ -141,21 +141,7 @@ class Bot {
                     member.voice.channel.leave();
                 }
             }
-
-            return;
         }
-
-        let user = await this.user.get(newState.id);
-
-        if (user.theme.enabled === undefined || !user.theme.enabled) {
-            return;
-        }
-
-
-
-        // TODO: Play user's theme music
-        let connection = await currentChannel.join();
-        this.musicPlayer.play(currentChannel, connection, user.theme.link, user.theme.length * 1000);
     }
 
     /**
