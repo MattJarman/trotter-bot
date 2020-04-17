@@ -21,6 +21,12 @@ const defaults = {
     bulkDelete: {
         max: 100,
         min: 1
+    },
+    music: {
+        fortunateSon: {
+            link: 'https://www.youtube.com/watch?v=ZWijx_AgPiA',
+            length: 76000
+        }
     }
 };
 

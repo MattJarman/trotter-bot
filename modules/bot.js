@@ -2,7 +2,9 @@ const config = require('../config');
 const Discord = require('discord.js');
 const Steam = require('./steam');
 const Helper = require('./helper');
+const MusicPlayer = require('./musicPlayer');
 const User = require('../modules/user');
+const ytdl = require('ytdl-core');
 
 const PREFIX = config.prefix;
 const GROOVY_PREFIX = config.groovyPrefix;
@@ -17,6 +19,7 @@ class Bot {
         this.client.login(token);
         this.steam = new Steam();
         this.helper = new Helper();
+        this.musicPlayer = new MusicPlayer();
         this.user = new User();
     }
 
@@ -26,6 +29,10 @@ class Bot {
     listen() {
         this.client.on('ready', () => {
             console.log(`Logged in as ${this.client.user.tag}!`);
+            this.updatePresence({
+                activity: { name: 'Unturned' },
+                status: 'online'
+            });
         });
 
         this.client.on('message', message => {
@@ -36,6 +43,18 @@ class Bot {
             this.handleModeration(message);
             this.handleMessage(message);
         });
+
+        this.client.on('voiceStateUpdate', async(oldState, newState) => {
+            if (newState.member.user.bot) {
+                return;
+            }
+            this.handleVoiceStateUpdate(oldState, newState);
+        });
+
+        // TODO: Add log level into config
+        // this.client.on('debug', msg => {
+        //     if (msg.includes('VOICE')) console.log(msg);
+        // });
     }
 
     /**
@@ -85,6 +104,43 @@ class Bot {
             case 'playtime':
                 this.playtime(message, args);
                 break;
+            case 'vietnam':
+                this.fortunateSon(message);
+                break;
+            case 'resume':
+                this.handleMediaControls(message, command);
+                break;
+            case 'pause':
+                this.handleMediaControls(message, command);
+                break;
+            case 'stop':
+                this.handleMediaControls(message, command);
+                break;
+            default:
+                message.reply('Invalid command.');
+        }
+    }
+
+    async handleVoiceStateUpdate(oldState, newState) {
+        let currentChannel = newState.channel;
+        let oldChannel = oldState.channel;
+
+        // User didn't join a voice channel
+        if (currentChannel === null) {
+            let channel = this.getChannelById(oldChannel.id);
+
+            // If the bot is the only one in the voice channel, then disconnect it
+            if (channel !== undefined) {
+                if (channel.members.size !== 1) {
+                    return;
+                }
+
+                let member = channel.members.first();
+
+                if (member.user === this.client.user) {
+                    member.voice.channel.leave();
+                }
+            }
         }
     }
 
@@ -95,18 +151,22 @@ class Bot {
      * @param {Array} args 
      */
     purge(message, args) {
+        if (message.channel.type === 'dm') {
+            return message.reply(`You can't use that command in a DM.`);
+        }
+
         let roles = message.member.roles.cache;
 
         if (!roles.some(role => role.name === 'Admin')) {
             return this.sendAndDelete(
-                message,
+                message.channel,
                 'Sorry, but you don\'t have permission to do that.'
             );
         }
 
         if (args.length !== 1) {
             return this.sendAndDelete(
-                message,
+                message.channel,
                 'Invalid number of arguments. To use this command, type:\n ```!purge <amount_to_delete>```'
             );
         }
@@ -115,14 +175,14 @@ class Bot {
 
         if (isNaN(amount)) {
             return this.sendAndDelete(
-                message,
+                message.channel,
                 `'${args[0]}' isn't a valid number.`
             );
         }
 
         if (amount <= BULK_DELETE_MIN || amount > BULK_DELETE_MAX) {
             return this.sendAndDelete(
-                message,
+                message.channel,
                 'You need to enter a number between 1 and 99.'
             );
         }
@@ -139,16 +199,19 @@ class Bot {
     async updateSteamId(message, args) {
         if (args.length !== 1) {
             return this.sendAndDelete(
-                message,
+                message.channel,
                 'Invalid number of arguments. To use this command, type:\n ```!steamid <your_steam_id>```'
             );
         }
 
-        let userId = message.member.user.id;
+        let userId = message.author.id;
         let user = await this.user
             .update({ _id: userId }, { steamid: args[0] })
             .catch(err => {
                 // TODO: Respond with error
+            })
+            .then(() => {
+                message.reply('Done! Your Steam ID has been updated.');
             });
     }
 
@@ -159,7 +222,7 @@ class Bot {
      * @param {Array} args 
      */
     async playtime(message, args) {
-        let userId = message.member.user.id;
+        let userId = message.author.id;
         let user = await this.user
             .get(userId)
             .catch(err => {
@@ -176,21 +239,21 @@ class Bot {
             .getUserGames(steamId)
             .catch(err => {
                 return this.sendAndDelete(
-                    message,
+                    message.channel,
                     `There was a problem retrieving your games. Please ensure that:\n\n\t 1. Your Steam ID \`${steamId}\` is correct\n\t 2. Your Steam profile is public`
                 );
             });
 
         if (response === 'undefined') {
             return this.sendAndDelete(
-                message,
+                message.channel,
                 `There was a problem retrieving your games. Please ensure that:\n\n\t 1. Your Steam ID \`${steamId}\` is correct\n\t 2. Your Steam profile is public`
             );
         }
 
         if (!response.games) {
             return this.sendAndDelete(
-                message,
+                message.channel,
                 `Slow down there buackaroo, that's way too many requests. Have some patience, and wait a little while before making another.`
             );
         }
@@ -219,12 +282,12 @@ class Bot {
                     url: game.logo_url
                 },
                 fields: [{
-                        name: 'Hours Played',
-                        value: game.playtime_forever
+                        name: 'Total',
+                        value: `${game.playtime_forever} hrs played`
                     },
                     {
-                        name: 'Hours Played (last 2 weeks)',
-                        value: game.playtime_2weeks
+                        name: 'Last 2 Weeks',
+                        value: `${game.playtime_2weeks} hrs played`
                     }
                 ],
                 timestamp: new Date(),
@@ -238,6 +301,36 @@ class Bot {
         message.channel.send(reply);
     }
 
+    handleMediaControls(message, control) {
+        if (message.channel.type === 'dm') {
+            return message.reply(`You can't use that command in a DM.`);
+        }
+
+        switch (control) {
+            case 'resume':
+                this.musicPlayer.resume();
+                break;
+            case 'pause':
+                this.musicPlayer.pause();
+                break;
+            case 'stop':
+                this.musicPlayer.stop();
+        }
+    }
+
+    async fortunateSon(message) {
+        if (message.channel.type === 'dm') {
+            return message.reply(`You can't use that command in a DM.`);
+        }
+
+        let connection = await this.connectToVoiceChannel(message);
+        let channel = message.member.voice.channel;
+        let fortunateSon = config.music.fortunateSon;
+
+        // let player = new MusicPlayer(connection);
+        this.musicPlayer.play(channel, connection, fortunateSon.link, fortunateSon.length);
+    }
+
     /**
      * Removes a message and then responds
      * to it
@@ -247,7 +340,7 @@ class Bot {
      */
     removeAndRespond(message, reply) {
         message.delete();
-        this.sendAndDelete(message, reply);
+        this.sendAndDelete(message.channel, reply);
     }
 
     /**
@@ -258,14 +351,40 @@ class Bot {
      * @param {String} reply 
      * @param {Number} timeout 
      */
-    sendAndDelete(message, reply, timeout = DEFAULT_TIMEOUT) {
-        message.channel
+    sendAndDelete(channel, reply, timeout = DEFAULT_TIMEOUT) {
+        channel
             .send(reply)
             .then(message => {
                 message.delete({
                     timeout: timeout
                 });
             });
+    }
+
+    async connectToVoiceChannel(message) {
+        if (!message.guild) {
+            return;
+        }
+
+        if (!message.member.voice.channel) {
+            message.reply(`Hey < @${message.member.user.id}>, you need to join a voice channel first!`);
+            return;
+        }
+
+        return message.member.voice.channel.join();
+    }
+
+
+    getChannelByName(name) {
+        return this.client.channels.cache.find(channel => channel.name === name);
+    }
+
+    getChannelById(id) {
+        return this.client.channels.cache.find(channel => channel.id === id);
+    }
+
+    updatePresence(data) {
+        this.client.user.setPresence(data);
     }
 }
 
