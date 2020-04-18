@@ -4,6 +4,7 @@ const Steam = require('./steam');
 const Helper = require('./helper');
 const MusicPlayer = require('./musicPlayer');
 const User = require('../modules/user');
+const HLTB = require('../modules/hltb');
 
 const PREFIX = config.prefix;
 const GROOVY_PREFIX = config.groovyPrefix;
@@ -18,6 +19,7 @@ class Bot {
         this.helper = new Helper();
         this.musicPlayer = new MusicPlayer();
         this.user = new User();
+        this.HLTB = new HLTB();
     }
 
     /**
@@ -106,6 +108,9 @@ class Bot {
                 break;
             case 'vietnam':
                 this.fortunateSon(message);
+                break;
+            case 'hltb':
+                this.hltb(message, args);
                 break;
             case 'resume':
                 this.handleMediaControls(message, command);
@@ -322,7 +327,7 @@ class Bot {
         }
 
         if (game === undefined) {
-            return message.channel.send(`We couldn't find a game called ${selected} in your library.`);
+            return message.channel.send(`I couldn't find a game called ${selected} in your library.`);
         }
 
         let reply = new Discord.MessageEmbed()
@@ -333,7 +338,7 @@ class Bot {
             .setTimestamp()
             .setFooter('Stats provided by Steam', this.client.user.avatarUrl);
 
-        message.channel.send(reply);
+        return message.channel.send(reply);
     }
 
     /**
@@ -360,33 +365,6 @@ class Bot {
     }
 
     /**
-     * Command validation
-     * 
-     * @param {Object} message 
-     * @param {Object} command 
-     * @param {Array} args 
-     */
-    isValidCommand(message, command, args) {
-        let expectedArgs = command.args.filter(arg => arg.required);
-
-        if (command.channelOnly && message.channel.type === 'dm') {
-            message.reply(`You can't use that command in a DM.`);
-            return false;
-        }
-
-        if (expectedArgs.length !== args.length && command.args.length !== args.length) {
-            this.sendAndDelete(
-                message.channel,
-                `Invalid number of arguments. To use this command, type: \`\`\`${this.helper.getCommandUsageString(command)}\`\`\``
-            );
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Plays Fortnate Son
      * 
      * @param {Object} message 
@@ -406,6 +384,75 @@ class Bot {
         let commandConfig = config.commands.vietnam.config;
 
         this.musicPlayer.play(channel, connection, commandConfig.link, commandConfig.length);
+    }
+
+    /**
+     * Returns How Long To Beat data about a 
+     * specified game
+     * 
+     * @param {Object} message 
+     * @param {Array} args 
+     */
+    async hltb(message, args) {
+        let commandConfig = config.commands.hltb;
+
+        if (!this.isValidCommand(message, commandConfig, args)) {
+            return;
+        }
+
+        let gameName = args.join(' ');
+        let games = await this.HLTB.get(gameName);
+        let game = this.helper.search(gameName, games);
+
+        if (game === undefined) {
+            return message.channel.send(`Sorry, but I couldn't find a game called '\`${gameName}\`'.`);
+        }
+
+        let response = new Discord.MessageEmbed()
+            .setTitle(game.name)
+            .setImage(game.imageUrl)
+            .setColor(config.colour)
+            .addFields({ name: 'Main Story', value: `${game.gameplayMain} Hours`, inline: true }, { name: 'Main + Extras', value: `${game.gameplayMainExtra} Hours`, inline: true }, { name: 'Completionist', value: `${game.gameplayCompletionist} Hours`, inline: true })
+            .setTimestamp()
+            .setFooter(`Stats provided by How Long To Beat`, this.client.user.avatarUrl);
+
+        return message.channel.send(response);
+    }
+
+    /**
+     * Command validation
+     * 
+     * @param {Object} message 
+     * @param {Object} command 
+     * @param {Array} args 
+     */
+    isValidCommand(message, command, args) {
+        let expectedArgs = command.args.filter(arg => arg.required);
+
+        if (command.channelOnly && message.channel.type === 'dm') {
+            message.reply(`You can't use that command in a DM.`);
+            return false;
+        }
+
+        if (command.isSingleArg && expectedArgs.length > args.length) {
+            this.sendAndDelete(
+                message.channel,
+                `Invalid number of arguments. To use this command, type: \`\`\`${this.helper.getCommandUsageString(command)}\`\`\``
+            );
+
+            return false;
+        }
+
+        if (!command.isSingleArg && expectedArgs.length !== args.length && command.args.length !== args.length) {
+            this.sendAndDelete(
+                message.channel,
+                `Invalid number of arguments. To use this command, type: \`\`\`${this.helper.getCommandUsageString(command)}\`\`\``
+            );
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
