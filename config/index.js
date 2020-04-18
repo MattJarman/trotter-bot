@@ -1,4 +1,5 @@
 const path = require('path');
+const commands = require('./commands');
 const dev = require('./env/development');
 // prod
 
@@ -18,6 +19,7 @@ const defaults = {
         'ass clown',
         'shitblimp'
     ],
+    colour: '#1DB954',
     bulkDelete: {
         max: 100,
         min: 1
@@ -31,5 +33,5 @@ const defaults = {
 };
 
 module.exports = {
-    dev: Object.assign({}, dev, defaults)
+    dev: Object.assign({}, dev, defaults, commands)
 }[process.env.NODE_ENV || 'dev'];

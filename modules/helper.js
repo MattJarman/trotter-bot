@@ -2,6 +2,12 @@ const config = require('../config');
 const STEAM_BASE_LOGO_URL = config.steam.logoBaseUrl;
 
 class Helper {
+
+    /**
+     * Sorts an array of games by playtime, descending
+     * 
+     * @param {Array} games 
+     */
     sortByPlaytime(games) {
         return games.sort((a, b) => {
             if (a.playtime_forever < b.playtime_forever) {
@@ -16,6 +22,10 @@ class Helper {
         });
     }
 
+    /**
+     * Organises games into a more usable format 
+     * @param {Array} games 
+     */
     formatGames(games) {
         let formattedGames = [];
         games = this.sortByPlaytime(games);
@@ -32,10 +42,28 @@ class Helper {
         return formattedGames;
     }
 
+    /**
+     * Builds an image URL from a steam game
+     * 
+     * @param {Number} appid 
+     * @param {String} logoUrl 
+     * 
+     * @returns {String}
+     */
     buildLogoUrl(appid, logoUrl) {
         return `${STEAM_BASE_LOGO_URL}${appid}/${logoUrl}.jpg`;
     }
 
+    /**
+     * Calculates the Levenshtein Distance between a search term
+     * and all games in a user's steam library and returns the 
+     * closest result 
+     * 
+     * @param {String} term 
+     * @param {Array} games 
+     * 
+     * @returns {Object} found
+     */
     search(term, games) {
         let minDist = Number.MAX_SAFE_INTEGER;
         let found = games[0];
@@ -52,6 +80,14 @@ class Helper {
         return found;
     }
 
+    /**
+     * Finds the Levenshtein Distance between to strings
+     * 
+     * @param {String} a 
+     * @param {String} b 
+     * 
+     * @returns {Number}
+     */
     levenshteinDistance(a, b) {
         const matrix = this.emptyMatrix(a.length + 1, b.length + 1);
 
@@ -77,10 +113,50 @@ class Helper {
         return matrix[a.length][b.length];
     }
 
+    /**
+     * Creates an empty matrix
+     * 
+     * @param {Number} width 
+     * @param {Number} height 
+     * 
+     * @returns {Array}
+     */
     emptyMatrix(width, height) {
         return Array(width)
             .fill(null)
             .map(() => Array(height).fill(null));
+    }
+
+    /**
+     * Capitalises the first letter of each word
+     * in a string
+     * 
+     * @param {String} string 
+     * 
+     * @returns {String}
+     */
+    capitalise(string) {
+        return string.toLowerCase()
+            .split(' ')
+            .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+            .join(' ');
+    }
+
+    /**
+     * Returns the usage string for a specific command
+     * @param {Object} commandConfig
+     * 
+     * @returns {String}
+     */
+    getCommandUsageString(commandConfig) {
+        let argsString = commandConfig.args
+            .map(arg => {
+                let name = arg.required ? arg.name : `${arg.name}*`;
+                return name;
+            })
+            .join(' ');
+
+        return `!${commandConfig.name} ${argsString}`;
     }
 }
 

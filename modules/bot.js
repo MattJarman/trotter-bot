@@ -4,14 +4,11 @@ const Steam = require('./steam');
 const Helper = require('./helper');
 const MusicPlayer = require('./musicPlayer');
 const User = require('../modules/user');
-const ytdl = require('ytdl-core');
 
 const PREFIX = config.prefix;
 const GROOVY_PREFIX = config.groovyPrefix;
 const DEFAULT_TIMEOUT = config.timeout;
 const INSULTS = config.insults;
-const BULK_DELETE_MAX = config.bulkDelete.max;
-const BULK_DELETE_MIN = config.bulkDelete.min;
 
 class Bot {
     constructor(token) {
@@ -95,6 +92,9 @@ class Bot {
         let command = args.shift().toLowerCase();
 
         switch (command) {
+            case 'help':
+                this.help(message, args);
+                break;
             case 'purge':
                 this.purge(message, args);
                 break;
@@ -121,6 +121,12 @@ class Bot {
         }
     }
 
+    /**
+     * Disconnects the bot from the channel if everybody leaves
+     * 
+     * @param {Object} oldState 
+     * @param {Object} newState 
+     */
     async handleVoiceStateUpdate(oldState, newState) {
         let currentChannel = newState.channel;
         let oldChannel = oldState.channel;
@@ -145,14 +151,66 @@ class Bot {
     }
 
     /**
+     * Lists all commands along with their usage. If an argument 
+     * is specified, then information about that command will
+     * be returned instead
+     * 
+     * @param {Object} message 
+     * @param {Array} args 
+     */
+    help(message, args) {
+        let commandConfig = config.commands.help;
+        let commands = config.commands;
+
+        if (!this.isValidCommand(message, commandConfig, args)) {
+            return;
+        }
+
+        if (args.length > 0) {
+            let command = Object.values(commands).find(command => command.name === args[0]);
+
+            if (command === undefined) {
+                return message.channel.send(`Sorry, but the command \`${args[0]}\` doesn't exist. For a list of valid commands, try: \`\`\`!${commandConfig.name}\`\`\``);
+            }
+
+            let response = new Discord.MessageEmbed()
+                .setColor(config.colour)
+                .setTitle(this.helper.capitalise(command.name))
+                .setDescription(command.description)
+                .addField('Usage', `**${this.helper.getCommandUsageString(command)}**`);
+
+            command.args.forEach(arg => {
+                let name = arg.required ? arg.name : `${arg.name} *(Optional)*`
+                response.addField(name, arg.description, true);
+            });
+
+            return message.channel.send(response);
+        }
+
+        let response = new Discord.MessageEmbed()
+            .setColor(config.colour)
+            .setTitle('Trotter')
+            .setDescription('Arguments with asterisks mean they\'re optional.');
+
+        Object.values(commands).forEach(command => {
+            let description = command.description + `\n** ${this.helper.getCommandUsageString(command)} **`;
+            response.addField(this.helper.capitalise(command.name), description);
+        });
+
+        return message.channel.send(response);
+    }
+
+    /**
      * Bulk deletes message from the current channel
      * 
      * @param {Object} message 
      * @param {Array} args 
      */
     purge(message, args) {
-        if (message.channel.type === 'dm') {
-            return message.reply(`You can't use that command in a DM.`);
+        let commandConfig = config.commands.purge;
+
+        if (!this.isValidCommand(message, commandConfig, args)) {
+            return;
         }
 
         let roles = message.member.roles.cache;
@@ -161,13 +219,6 @@ class Bot {
             return this.sendAndDelete(
                 message.channel,
                 'Sorry, but you don\'t have permission to do that.'
-            );
-        }
-
-        if (args.length !== 1) {
-            return this.sendAndDelete(
-                message.channel,
-                'Invalid number of arguments. To use this command, type:\n ```!purge <amount_to_delete>```'
             );
         }
 
@@ -180,10 +231,10 @@ class Bot {
             );
         }
 
-        if (amount <= BULK_DELETE_MIN || amount > BULK_DELETE_MAX) {
+        if (amount <= commandConfig.config.min || amount > commandConfig.config.max) {
             return this.sendAndDelete(
                 message.channel,
-                'You need to enter a number between 1 and 99.'
+                `You need to enter a number between ${commandConfig.config.min} and ${commandConfig.config.max - 1}.`
             );
         }
 
@@ -197,11 +248,10 @@ class Bot {
      * @param {Array} args 
      */
     async updateSteamId(message, args) {
-        if (args.length !== 1) {
-            return this.sendAndDelete(
-                message.channel,
-                'Invalid number of arguments. To use this command, type:\n ```!steamid <your_steam_id>```'
-            );
+        let commandConfig = config.commands.steamid;
+
+        if (!this.isValidCommand(message, commandConfig, args)) {
+            return;
         }
 
         let userId = message.author.id;
@@ -211,7 +261,7 @@ class Bot {
                 // TODO: Respond with error
             })
             .then(() => {
-                message.reply('Done! Your Steam ID has been updated.');
+                message.reply('your Steam ID has been updated!');
             });
     }
 
@@ -259,7 +309,7 @@ class Bot {
         }
 
         if (response.games.length === 0) {
-            return message.channel.send('Hmmm, looks like you don\'t own any games. Are you sure your steam ID is correct?');
+            return message.channel.send('Hmmm, looks like you don\'t own any games. Are you sure your Steam ID is correct?');
         }
 
         let games = this.helper.formatGames(response.games);
@@ -275,32 +325,23 @@ class Bot {
             return message.channel.send(`We couldn't find a game called ${selected} in your library.`);
         }
 
-        let reply = {
-            embed: {
-                title: game.name,
-                image: {
-                    url: game.logo_url
-                },
-                fields: [{
-                        name: 'Total',
-                        value: `${game.playtime_forever} hrs played`
-                    },
-                    {
-                        name: 'Last 2 Weeks',
-                        value: `${game.playtime_2weeks} hrs played`
-                    }
-                ],
-                timestamp: new Date(),
-                footer: {
-                    icon_url: this.client.user.avatarUrl,
-                    text: 'Stats provided by Steam'
-                }
-            }
-        };
+        let reply = new Discord.MessageEmbed()
+            .setTitle(game.name)
+            .setImage(game.logo_url)
+            .setColor(config.colour)
+            .addFields({ name: 'Forever', value: `${game.playtime_forever} hrs played` }, { name: 'Last 2 Weeks', value: `${game.playtime_2weeks} hrs played` })
+            .setTimestamp()
+            .setFooter('Stats provided by Steam', this.client.user.avatarUrl);
 
         message.channel.send(reply);
     }
 
+    /**
+     * Media controls for playing music
+     * 
+     * @param {Object} message 
+     * @param {String} control 
+     */
     handleMediaControls(message, control) {
         if (message.channel.type === 'dm') {
             return message.reply(`You can't use that command in a DM.`);
@@ -318,17 +359,53 @@ class Bot {
         }
     }
 
+    /**
+     * Command validation
+     * 
+     * @param {Object} message 
+     * @param {Object} command 
+     * @param {Array} args 
+     */
+    isValidCommand(message, command, args) {
+        let expectedArgs = command.args.filter(arg => arg.required);
+
+        if (command.channelOnly && message.channel.type === 'dm') {
+            message.reply(`You can't use that command in a DM.`);
+            return false;
+        }
+
+        if (expectedArgs.length !== args.length && command.args.length !== args.length) {
+            this.sendAndDelete(
+                message.channel,
+                `Invalid number of arguments. To use this command, type: \`\`\`${this.helper.getCommandUsageString(command)}\`\`\``
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Plays Fortnate Son
+     * 
+     * @param {Object} message 
+     */
     async fortunateSon(message) {
         if (message.channel.type === 'dm') {
             return message.reply(`You can't use that command in a DM.`);
         }
 
         let connection = await this.connectToVoiceChannel(message);
-        let channel = message.member.voice.channel;
-        let fortunateSon = config.music.fortunateSon;
 
-        // let player = new MusicPlayer(connection);
-        this.musicPlayer.play(channel, connection, fortunateSon.link, fortunateSon.length);
+        if (!connection) {
+            return;
+        }
+
+        let channel = message.member.voice.channel;
+        let commandConfig = config.commands.vietnam.config;
+
+        this.musicPlayer.play(channel, connection, commandConfig.link, commandConfig.length);
     }
 
     /**
@@ -361,28 +438,51 @@ class Bot {
             });
     }
 
+    /**
+     * Connects bot to user's voice channel
+     * 
+     * @param {Object} message 
+     */
     async connectToVoiceChannel(message) {
         if (!message.guild) {
-            return;
+            return false;
         }
 
         if (!message.member.voice.channel) {
-            message.reply(`Hey < @${message.member.user.id}>, you need to join a voice channel first!`);
-            return;
+            message.reply(`you need to join a voice channel first!`);
+            return false;
         }
 
         return message.member.voice.channel.join();
     }
 
 
+    /**
+     * Returns channel object with specified name
+     * 
+     * @param {String} name
+     * 
+     * @returns  
+     */
     getChannelByName(name) {
         return this.client.channels.cache.find(channel => channel.name === name);
     }
 
+    /**
+     * Returns channel object with specified id
+     * 
+     * @param {String} id 
+     */
     getChannelById(id) {
         return this.client.channels.cache.find(channel => channel.id === id);
     }
 
+    /**
+     * Updates bot presence
+     * 
+     * 
+     * @param {Object} data 
+     */
     updatePresence(data) {
         this.client.user.setPresence(data);
     }
