@@ -122,7 +122,7 @@ class Bot {
                 this.handleMediaControls(message, command);
                 break;
             default:
-                message.reply('Invalid command.');
+                message.reply('sorry, but that\'s an invalid command. Use `!help` for a list of valid commands.');
         }
     }
 
@@ -175,7 +175,7 @@ class Bot {
             let command = Object.values(commands).find(command => command.name === args[0]);
 
             if (command === undefined) {
-                return message.channel.send(`Sorry, but the command \`${args[0]}\` doesn't exist. For a list of valid commands, try: \`\`\`!${commandConfig.name}\`\`\``);
+                return message.channel.send(`Sorry, but the command \`${args[0]}\` doesn't exist. Use \`!${commandConfig.name}\` for a list of valid commands.`);
             }
 
             let response = new Discord.MessageEmbed()
