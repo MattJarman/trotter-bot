@@ -4,6 +4,7 @@ module.exports = {
             name: 'help',
             description: 'Lists all commands, and displays usage for a command if one is specified.',
             channelOnly: false,
+            isSingleArg: false,
             args: [{
                 name: 'command_name',
                 description: 'Name of command you need help with.',
@@ -15,6 +16,7 @@ module.exports = {
             name: 'purge',
             description: 'Deletes a specified number of messages (between 1 and 99) from the current channel.',
             channelOnly: true,
+            isSingleArg: false,
             args: [{
                 name: 'amount',
                 description: 'Number of messages to be deleted.',
@@ -29,6 +31,7 @@ module.exports = {
             name: 'steamid',
             description: 'Sets a user\'s Steam ID.',
             channelOnly: false,
+            isSingleArg: false,
             args: [{
                 name: 'steam_id',
                 description: 'Steam ID of user.',
@@ -40,9 +43,10 @@ module.exports = {
             name: 'playtime',
             description: 'Displays a user\'s playtime for a specified game in their Steam library. Will return most played game in the user\'s Steam library if no game is specified.',
             channelOnly: false,
+            isSingleArg: true,
             args: [{
-                name: `game_name`,
-                description: `Name of game to be returned.`,
+                name: 'game_name',
+                description: 'Name of game to be returned.',
                 required: false,
             }],
             config: {}
@@ -51,11 +55,24 @@ module.exports = {
             name: 'vietnam',
             description: 'Plays Fortunate Son by Creedence Clearwater Revival for exactly 76 seconds.\n*Note: You must be in a voice channel to use this command.*',
             channelOnly: true,
+            isSingleArg: false,
             args: [],
             config: {
                 link: 'https://www.youtube.com/watch?v=ZWijx_AgPiA',
                 length: 76000
             }
+        },
+        hltb: {
+            name: 'hltb',
+            description: 'Returns How Long To Beat data for a specified game.',
+            channelOnly: false,
+            isSingleArg: true,
+            args: [{
+                name: 'game_name',
+                description: 'Name of game to search for.',
+                required: true
+            }],
+            config: {}
         }
     }
 }
