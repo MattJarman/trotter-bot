@@ -334,7 +334,7 @@ class Bot {
             .setTitle(game.name)
             .setImage(game.logo_url)
             .setColor(config.colour)
-            .addFields({ name: 'Forever', value: `${game.playtime_forever} hrs played` }, { name: 'Last 2 Weeks', value: `${game.playtime_2weeks} hrs played` })
+            .addFields({ name: 'Forever', value: `${game.playtime_forever} hrs played`, inline: true }, { name: 'Last 2 Weeks', value: `${game.playtime_2weeks} hrs played`, inline: true })
             .setTimestamp()
             .setFooter('Stats provided by Steam', this.client.user.avatarUrl);
 
