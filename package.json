@@ -9,7 +9,7 @@
     "author": "Matt",
     "license": "ISC",
     "dependencies": {
-        "@discordjs/opus": "github:hzmifork/opus",
+        "@discordjs/opus": "^0.3.2",
         "discord.js": "^12.1.1",
         "dotenv": "^8.2.0",
         "ffmpeg-static": "^4.1.0",
