@@ -5,6 +5,7 @@ const Helper = require('./helper');
 const MusicPlayer = require('./musicPlayer');
 const User = require('../modules/user');
 const HLTB = require('../modules/hltb');
+const IsThereAnyDeal = require('../modules/isthereanydeal');
 
 const PREFIX = config.prefix;
 const GROOVY_PREFIX = config.groovyPrefix;
@@ -20,6 +21,7 @@ class Bot {
     this.musicPlayer = new MusicPlayer();
     this.user = new User();
     this.HLTB = new HLTB();
+    this.anyDeal = new IsThereAnyDeal();
   }
 
   /**
@@ -120,6 +122,9 @@ class Bot {
         break;
       case 'hltb':
         this.hltb(message, args);
+        break;
+      case 'deal':
+        this.deal(message, args);
         break;
       case 'resume':
         this.handleMediaControls(message, command);
@@ -476,6 +481,58 @@ class Bot {
         `Stats provided by How Long To Beat`,
         this.client.user.avatarUrl
       );
+
+    return message.channel.send(response);
+  }
+
+  async deal(message, args) {
+    let commandConfig = config.commands.deal;
+
+    if (!this.isValidCommand(message, commandConfig, args)) {
+      return;
+    }
+
+    let gameName = args.join(' ');
+    let game = await this.anyDeal.getDeal(gameName);
+
+    if (!game) {
+      return message.channel.send(
+        `Sorry, but I couldn't find a deal for '\`${gameName}\`'.`
+      );
+    }
+
+    let response = new Discord.MessageEmbed()
+      .setTitle(game.name)
+      .setDescription(`[Link](${game.urls.info})`)
+      .setColor(config.colour)
+      .addFields(
+        {
+          name: 'Current Best',
+          value: `[${game.price.store}](${game.price.url})`,
+          inline: true,
+        },
+        {
+          name: '\u200B',
+          value: `**£${game.price.price}**`,
+          inline: true,
+        },
+        {
+          name: '\u200B',
+          value: '\u200B',
+        },
+        {
+          name: 'Historical Low',
+          value: `[${game.lowest.store}](${game.lowest.url}) `,
+          inline: true,
+        },
+        {
+          name: '\u200B',
+          value: `**£${game.lowest.price}**`,
+          inline: true,
+        }
+      )
+      .setTimestamp()
+      .setFooter(`Info provided by IsThereAnyDeal`, this.client.user.avatarUrl);
 
     return message.channel.send(response);
   }
