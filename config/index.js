@@ -1,24 +1,12 @@
 const path = require('path');
 const commands = require('./commands');
 const dev = require('./env/development');
-// prod
 
 const defaults = {
   root: path.join(__dirname, '..'),
   prefix: '!',
   groovyPrefix: '-',
-  timeout: 10000, // 10 seconds
-  insults: [
-    'dumbass',
-    'jive turkey',
-    'garage à bites',
-    'tortchenfriedhof',
-    'skitstovel',
-    'pendejo',
-    'trou du cul',
-    'ass clown',
-    'shitblimp',
-  ],
+  timeout: 10000,
   colour: '#1DB954',
   bulkDelete: {
     max: 100,

@@ -72,11 +72,9 @@ class Bot {
       !content.startsWith(PREFIX) &&
       channel.name === 'music'
     ) {
-      // Get a random insult
-      let insult = INSULTS[Math.floor(Math.random() * INSULTS.length)];
       this.removeAndRespond(
         message,
-        `Hey <@${message.member.user.id}>, you shouldn't be talking in this channel, you absolute ${insult}.`
+        `Hey <@${message.member.user.id}>, you shouldn't be talking in this channel.`
       );
     }
 
