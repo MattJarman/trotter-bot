@@ -1,6 +1,8 @@
 const config = require('../config');
 const STEAM_BASE_LOGO_URL = config.steam.logoBaseUrl;
 
+const DEFAULT_TIMEOUT = config.timeout;
+
 class Helper {
   /**
    * Sorts an array of games by playtime, descending
@@ -160,6 +162,30 @@ class Helper {
       .join(' ');
 
     return `!${commandConfig.name} ${argsString}`;
+  }
+
+  isValidCommand(message, config, args) {
+    let expectedArgs = config.args.filter((arg) => arg.required);
+
+    if (config.channelOnly && message.channel.type === 'dm') {
+      message.reply(`You can't use that command in a DM.`);
+      return false;
+    }
+
+    if ((config.isSingleArg && expectedArgs.length > args.length) || (!config.isSingleArg && expectedArgs.length !== args.length && config.args.length !== args.length)) {
+      this.sendAndDelete(message.channel, `Invalid number of arguments. to use this command, type \`\`\`${this.getCommandUsageString(config)}\`\`\``);
+      return false;
+    }
+
+    return true;
+  }
+
+  sendAndDelete(channel, reply, timeout = DEFAULT_TIMEOUT) {
+    channel.send(reply).then(message => {
+      message.delete({
+        timeout: timeout
+      })
+    })
   }
 }
 
