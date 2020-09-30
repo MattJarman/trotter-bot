@@ -15,7 +15,7 @@
         "ffmpeg-static": "^4.1.0",
         "howlongtobeat": "^1.2.1",
         "mongoose": "^5.9.7",
-        "node-fetch": "^2.6.0",
+        "node-fetch": "^2.6.1",
         "path": "^0.12.7",
         "ytdl-core": "^2.0.1"
     },
