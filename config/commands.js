@@ -101,7 +101,7 @@ module.exports = {
           required: true,
         },
       ],
+      config: {},
     },
-    config: {},
   },
 };
