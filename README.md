@@ -26,11 +26,12 @@ You will also need a [Discord Developer](https://discordapp.com/developers) acco
 
     $ cp .env.sample .env
 
-> Open the env file you just created with a text editor and insert the your Discord bot token and Steam API key
+> Open the env file you just created with a text editor and insert your tokens
 
     $ vim .env
     TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE
     STEAM_API_KEY=YOUR_STEAM_API_KEY_HERE
+    ISTHEREANYDEAL_API_KEY=YOUR_ISTHEREANYDEAL_API_KEY_HERE
     ...
  
  > Run the `start.sh` script in the project root
