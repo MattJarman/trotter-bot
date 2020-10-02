@@ -18,7 +18,6 @@ class Bot {
     const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
     for (const file of commandFiles) {
-      console.log(file);
       const command = require(`../commands/${file}`);
 
       this.client.commands.set(command.name, command);
