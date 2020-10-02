@@ -1,5 +1,9 @@
 # Trotter
 
+<p align="center">
+  <img src="gh-page/trotter.png">
+</p>
+
 ## Description
 
  Trotter is a discord bot I made for some incredibly simple moderation, along with a few helpful commands.
