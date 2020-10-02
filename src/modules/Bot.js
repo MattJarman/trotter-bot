@@ -1,5 +1,5 @@
 const fs = require('fs')
-const config = require('../config')
+const config = require('../../config')
 const Discord = require('discord.js')
 const Helper = require('./Helper')
 
@@ -13,7 +13,7 @@ class Bot {
     this.helper = new Helper()
 
     this.client.commands = new Discord.Collection()
-    const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
+    const commandFiles = fs.readdirSync('src/commands').filter(file => file.endsWith('.js'))
 
     for (const file of commandFiles) {
       const command = require(`../commands/${file}`)

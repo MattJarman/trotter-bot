@@ -1,4 +1,4 @@
-const config = require('../config')
+const config = require('../../config')
 const Helper = require('../modules/Helper')
 
 module.exports = {
