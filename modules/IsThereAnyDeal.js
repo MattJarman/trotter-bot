@@ -39,7 +39,7 @@ class IsThereAnyDeal {
   async getDeal (gameName, region = 'uk', country = 'UK') {
     const game = await this.search(gameName)
 
-    if (game === undefined) {
+    if (!game) {
       return false
     }
 
