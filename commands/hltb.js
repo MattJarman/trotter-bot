@@ -23,7 +23,7 @@ module.exports = {
       return message.channel.send(`Sorry, but I couldn't find a game called '\`${gameName}\`'.`)
     }
 
-    message.channel.send(formatMessage(message, game, client.avatarUrl))
+    await message.channel.send(formatMessage(message, game, client.avatarURL()))
   }
 }
 

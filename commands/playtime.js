@@ -40,7 +40,7 @@ module.exports = {
         game = helper.search(search, games)
       }
 
-      message.channel.send(formatMessage(message, game))
+      await message.channel.send(formatMessage(message, game))
     } catch (err) {
       console.error(err)
       message.reply('sorry, I had a problem completing that request.')

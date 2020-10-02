@@ -22,39 +22,26 @@ module.exports = {
       return message.channel.send(`Sorry, but I couldn't find a deal for '\`${gameName}\`'.`)
     }
 
-    await message.channel.send(formatMessage(message, game, client.avatarUrl))
+    await message.channel.send(formatMessage(message, game, client.avatarURL()))
   }
 }
 
 function formatMessage (message, game, avatar) {
+  const attachment = new Discord.MessageAttachment(config.isthereanydeal.icon, 'itad.jpg')
   return new Discord.MessageEmbed()
+    .setAuthor('IsThereAnyDeal', 'attachment://itad.jpg', config.isthereanydeal.url)
+    .setURL(game.urls.info)
+    .attachFiles(attachment)
     .setTitle(game.name)
-    .setDescription(`[Link](${game.urls.info})`)
     .setColor(config.colour)
     .addFields(
       {
         name: 'Current Best',
-        value: `[${game.price.store}](${game.price.url})`,
-        inline: true
-      },
-      {
-        name: '\u200B',
-        value: `**£${game.price.price}**`,
-        inline: true
-      },
-      {
-        name: '\u200B',
-        value: '\u200B'
+        value: `[${game.price.store}](${game.price.url}) - **£${game.price.price}**`
       },
       {
         name: 'Historical Low',
-        value: `[${game.lowest.store}](${game.lowest.url}) `,
-        inline: true
-      },
-      {
-        name: '\u200B',
-        value: `**£${game.lowest.price}**`,
-        inline: true
+        value: `[${game.lowest.store}](${game.lowest.url}) - **£${game.lowest.price}**`
       }
     )
     .setTimestamp()
