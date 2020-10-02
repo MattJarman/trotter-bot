@@ -1,5 +1,4 @@
 const config = require('../../config')
-const STEAM_BASE_LOGO_URL = config.steam.logoBaseUrl
 
 const DEFAULT_TIMEOUT = config.timeout
 
@@ -52,7 +51,7 @@ class Helper {
    * @returns {String}
    */
   buildLogoUrl (appid, logoUrl) {
-    return `${STEAM_BASE_LOGO_URL}${appid}/${logoUrl}.jpg`
+    return `${config.steam.imageBaseURL}${appid}/${logoUrl}.jpg`
   }
 
   /**

@@ -20,20 +20,25 @@ module.exports = {
     }
   },
   steam: {
-    key: STEAM_API_KEY,
-    baseURL: 'https://api.steampowered.com/',
-    routes: {
-      ownedGames: 'IPlayerService/GetOwnedGames/v1/'
+    api: {
+      key: STEAM_API_KEY,
+      baseURL: 'https://api.steampowered.com/',
+      routes: {
+        ownedGames: 'IPlayerService/GetOwnedGames/v1/'
+      }
     },
-    logoBaseUrl:
-      'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/',
-    steamIdFinderUrl: 'https://steamidfinder.com/'
+    imageBaseURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/'
   },
-  isthereanydeal: {
-    key: ISTHEREANYDEAL_API_KEY,
+  itad: {
     icon: 'public/img/itad.jpg',
     url: 'https://isthereanydeal.com/',
-    searchUrl: 'https://api.isthereanydeal.com/v01/search/search/?key=',
-    gameOverviewUrl: 'https://api.isthereanydeal.com/v01/game/overview/?key='
+    api: {
+      key: ISTHEREANYDEAL_API_KEY,
+      baseURL: 'https://api.isthereanydeal.com/v01/',
+      routes: {
+        search: 'search/search/',
+        overview: 'game/overview/'
+      }
+    }
   }
 }
