@@ -1,4 +1,4 @@
-const config = require('../config')
+const config = require('../../config')
 const fetch = require('node-fetch')
 const API_KEY = config.steam.key
 const OWNED_GAMES_BASE_URL = config.steam.ownedGamesBaseUrl

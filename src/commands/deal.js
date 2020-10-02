@@ -1,5 +1,5 @@
 const Discord = require('discord.js')
-const config = require('../config')
+const config = require('../../config')
 const Helper = require('../modules/Helper')
 const IsThereAnyDeal = require('../modules/IsThereAnyDeal')
 

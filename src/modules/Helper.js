@@ -1,4 +1,4 @@
-const config = require('../config')
+const config = require('../../config')
 const STEAM_BASE_LOGO_URL = config.steam.logoBaseUrl
 
 const DEFAULT_TIMEOUT = config.timeout

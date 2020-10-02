@@ -1,7 +1,7 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
 const config = require('./config')
-const Bot = require('./modules/Bot')
+const Bot = require('./src/modules/Bot')
 
 const trotter = new Bot(config.token)
 

@@ -1,4 +1,4 @@
-const config = require('../config')
+const config = require('../../config')
 const fetch = require('node-fetch')
 const Helper = require('./Helper')
 const API_KEY = config.isthereanydeal.key
