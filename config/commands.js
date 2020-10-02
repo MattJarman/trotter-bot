@@ -10,10 +10,10 @@ module.exports = {
         {
           name: 'command_name',
           description: 'Name of command you need help with.',
-          required: false,
-        },
+          required: false
+        }
       ],
-      config: {},
+      config: {}
     },
     purge: {
       name: 'purge',
@@ -25,13 +25,13 @@ module.exports = {
         {
           name: 'amount',
           description: 'Number of messages to be deleted.',
-          required: true,
-        },
+          required: true
+        }
       ],
       config: {
         max: 100,
-        min: 1,
-      },
+        min: 1
+      }
     },
     steamid: {
       name: 'steamid',
@@ -42,10 +42,10 @@ module.exports = {
         {
           name: 'steam_id',
           description: 'Steam ID of user.',
-          required: true,
-        },
+          required: true
+        }
       ],
-      config: {},
+      config: {}
     },
     playtime: {
       name: 'playtime',
@@ -57,10 +57,10 @@ module.exports = {
         {
           name: 'game_name',
           description: 'Name of game to be returned.',
-          required: false,
-        },
+          required: false
+        }
       ],
-      config: {},
+      config: {}
     },
     vietnam: {
       name: 'vietnam',
@@ -71,8 +71,8 @@ module.exports = {
       args: [],
       config: {
         link: 'https://www.youtube.com/watch?v=ZWijx_AgPiA',
-        length: 76000,
-      },
+        length: 76000
+      }
     },
     hltb: {
       name: 'hltb',
@@ -83,10 +83,10 @@ module.exports = {
         {
           name: 'game_name',
           description: 'Name of game to search for.',
-          required: true,
-        },
+          required: true
+        }
       ],
-      config: {},
+      config: {}
     },
     deal: {
       name: 'deal',
@@ -98,10 +98,10 @@ module.exports = {
         {
           name: 'game_name',
           description: 'Name of game to search for.',
-          required: true,
-        },
+          required: true
+        }
       ],
-      config: {},
-    },
-  },
-};
+      config: {}
+    }
+  }
+}

@@ -1,26 +1,26 @@
-const config = require('../config');
-const Helper = require('../modules/Helper');
-const User = require('../modules/User');
+const config = require('../config')
+const Helper = require('../modules/Helper')
+const User = require('../modules/User')
 
 module.exports = {
   name: 'steamid',
   description: 'Sets a user\'s Steam ID.',
-  async execute(message, args, client) {
-    const commandConfig = config.commands.steamid;
-    const helper = new Helper();
-    const user = new User();
+  async execute (message, args, client) {
+    const commandConfig = config.commands.steamid
+    const helper = new Helper()
+    const user = new User()
 
     if (!helper.isValidCommand(message, commandConfig, args)) {
-      return;
+      return
     }
 
-    const userId = message.author.id;
+    const userId = message.author.id
     await user.update({ _id: userId }, { steamid: args[0] })
       .catch(err => {
-        console.error(err);
+        console.error(err)
       })
       .then(() => {
-        message.reply('your Steam ID has been updated!');
+        message.reply('your Steam ID has been updated!')
       })
   }
 }

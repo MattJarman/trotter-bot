@@ -1,49 +1,49 @@
-const fs = require('fs');
-const config = require('../config');
-const Discord = require('discord.js');
+const fs = require('fs')
+const config = require('../config')
+const Discord = require('discord.js')
 const Helper = require('./Helper')
 
-const PREFIX = config.prefix;
-const GROOVY_PREFIX = config.groovyPrefix;
+const PREFIX = config.prefix
+const GROOVY_PREFIX = config.groovyPrefix
 
 class Bot {
-  constructor(token) {
-    this.client = new Discord.Client();
-    this.client.login(token);
-    this.helper = new Helper();
+  constructor (token) {
+    this.client = new Discord.Client()
+    this.client.login(token)
+    this.helper = new Helper()
 
-    this.client.commands = new Discord.Collection();
-    const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+    this.client.commands = new Discord.Collection()
+    const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 
     for (const file of commandFiles) {
-      const command = require(`../commands/${file}`);
+      const command = require(`../commands/${file}`)
 
-      this.client.commands.set(command.name, command);
+      this.client.commands.set(command.name, command)
     }
   }
 
-  listen() {
+  listen () {
     this.client.on('ready', () => {
-      console.log(`Logged in as ${this.client.user.tag}!`);
+      console.log(`Logged in as ${this.client.user.tag}!`)
       this.updatePresence({
         activity: { name: 'Unturned' },
-        status: 'online',
-      });
-    });
+        status: 'online'
+      })
+    })
 
     this.client.on('message', (message) => {
       if (message.author.bot) {
-        return;
+        return
       }
 
-      this.handleModeration(message);
-      this.handleMessage(message);
-    });
+      this.handleModeration(message)
+      this.handleMessage(message)
+    })
   }
 
-  handleModeration(message) {
-    let content = message.content;
-    let channel = message.channel;
+  handleModeration (message) {
+    const content = message.content
+    const channel = message.channel
 
     if (
       !content.startsWith(GROOVY_PREFIX) &&
@@ -53,38 +53,38 @@ class Bot {
       this.removeAndRespond(
         message,
         `Hey <@${message.member.user.id}>, you shouldn't be talking in this channel.`
-      );
+      )
     }
   }
 
-  handleMessage(message) {
-    let content = message.content;
+  handleMessage (message) {
+    const content = message.content
 
     if (!content.startsWith(PREFIX) || message.author.bot) {
-      return;
+      return
     }
 
-    let args = content.slice(PREFIX.length).split(' ');
-    let command = args.shift().toLowerCase();
+    const args = content.slice(PREFIX.length).split(' ')
+    const command = args.shift().toLowerCase()
 
-    if (!this.client.commands.has(command)) return;
+    if (!this.client.commands.has(command)) return
 
     try {
-      this.client.commands.get(command).execute(message, args, this.client.user);
+      this.client.commands.get(command).execute(message, args, this.client.user)
     } catch (error) {
-      console.error(error);
-      message.reply('there was an error trying to execute that command!');
+      console.error(error)
+      message.reply('there was an error trying to execute that command!')
     }
   }
 
-  removeAndRespond(message, reply) {
-    message.delete();
-    this.helper.sendAndDelete(message.channel, reply);
+  removeAndRespond (message, reply) {
+    message.delete()
+    this.helper.sendAndDelete(message.channel, reply)
   }
 
-  updatePresence(data) {
-    this.client.user.setPresence(data);
+  updatePresence (data) {
+    this.client.user.setPresence(data)
   }
 }
 
-module.exports = Bot;
+module.exports = Bot
