@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
 const config = require('../config');
-const Helper = require('../modules/helper');
-const Steam = require('../modules/steam');
-const User = require('../modules/user');
+const Helper = require('../modules/Helper');
+const Steam = require('../modules/Steam');
+const User = require('../modules/User');
 
 module.exports = {
   name: 'playtime',

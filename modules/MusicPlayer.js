@@ -1,5 +1,5 @@
 const ytdl = require('ytdl-core');
-const Timer = require('./timer');
+const Timer = require('./Timer');
 const STOPPED_STATE = 'stopped';
 const PLAYING_STATE = 'playing';
 const PAUSED_STATE = 'paused';

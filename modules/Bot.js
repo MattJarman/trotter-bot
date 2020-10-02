@@ -1,8 +1,9 @@
 const fs = require('fs');
 const config = require('../config');
 const Discord = require('discord.js');
-const MusicPlayer = require('./musicPlayer');
-const User = require('../modules/user');
+const Helper = require('./Helper')
+const MusicPlayer = require('./MusicPlayer');
+const User = require('./User');
 
 const PREFIX = config.prefix;
 const GROOVY_PREFIX = config.groovyPrefix;
@@ -11,6 +12,7 @@ class Bot {
   constructor(token) {
     this.client = new Discord.Client();
     this.client.login(token);
+    this.helper = new Helper();
     this.musicPlayer = new MusicPlayer();
     this.user = new User();
 
@@ -195,7 +197,7 @@ class Bot {
    */
   removeAndRespond(message, reply) {
     message.delete();
-    this.sendAndDelete(message.channel, reply);
+    this.helper.sendAndDelete(message.channel, reply);
   }
 
   /**

@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const config = require('../config');
-const Helper = require('../modules/helper');
-const IsThereAnyDeal = require('../modules/isthereanydeal');
+const Helper = require('../modules/Helper');
+const IsThereAnyDeal = require('../modules/IsThereAnyDeal');
 
 module.exports = {
   name: 'deal',

@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const config = require('../config');
-const Helper = require('../modules/helper');
-const HLTB = require('../modules/hltb');
+const Helper = require('../modules/Helper');
+const HLTB = require('../modules/HLTB');
 
 module.exports = {
   name: 'hltb',

@@ -1,5 +1,5 @@
 const config = require('../config');
-const Helper = require('../modules/helper');
+const Helper = require('../modules/Helper');
 
 module.exports = {
   name: 'purge',

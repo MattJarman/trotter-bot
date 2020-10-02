@@ -1,6 +1,6 @@
 const config = require('../config');
-const Helper = require('../modules/helper');
-const User = require('../modules/user');
+const Helper = require('../modules/Helper');
+const User = require('../modules/User');
 
 module.exports = {
   name: 'steamid',

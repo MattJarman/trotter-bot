@@ -1,6 +1,6 @@
 const config = require('../config');
 const fetch = require('node-fetch');
-const Helper = require('./helper');
+const Helper = require('./Helper');
 const API_KEY = config.isthereanydeal.key;
 const SEARCH_URL = config.isthereanydeal.searchUrl;
 const OVERVIEW_URL = config.isthereanydeal.gameOverviewUrl;
