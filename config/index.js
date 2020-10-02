@@ -1,6 +1,6 @@
-const path = require('path');
-const commands = require('./commands');
-const dev = require('./env/development');
+const path = require('path')
+const commands = require('./commands')
+const dev = require('./env/development')
 
 const defaults = {
   root: path.join(__dirname, '..'),
@@ -10,16 +10,16 @@ const defaults = {
   colour: '#1DB954',
   bulkDelete: {
     max: 100,
-    min: 1,
+    min: 1
   },
   music: {
     fortunateSon: {
       link: 'https://www.youtube.com/watch?v=ZWijx_AgPiA',
-      length: 76000,
-    },
-  },
-};
+      length: 76000
+    }
+  }
+}
 
 module.exports = {
-  dev: Object.assign({}, dev, defaults, commands),
-}[process.env.NODE_ENV || 'dev'];
+  dev: Object.assign({}, dev, defaults, commands)
+}[process.env.NODE_ENV || 'dev']

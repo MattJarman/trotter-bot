@@ -1,33 +1,33 @@
-const Discord = require('discord.js');
-const config = require('../config');
-const Helper = require('../modules/Helper');
-const HLTB = require('../modules/HLTB');
+const Discord = require('discord.js')
+const config = require('../config')
+const Helper = require('../modules/Helper')
+const HLTB = require('../modules/HLTB')
 
 module.exports = {
   name: 'hltb',
   description: 'Returns How Long To Beat data for a specified game.',
-  async execute(message, args, client) {
-    const commandConfig = config.commands.hltb;
-    const helper = new Helper();
-    const hltb = new HLTB();
+  async execute (message, args, client) {
+    const commandConfig = config.commands.hltb
+    const helper = new Helper()
+    const hltb = new HLTB()
 
     if (!helper.isValidCommand(message, commandConfig, args)) {
-      return;
+      return
     }
 
-    const gameName = args.join(' ');
-    const games = await hltb.get(gameName);
-    const game = helper.search(gameName, games);
+    const gameName = args.join(' ')
+    const games = await hltb.get(gameName)
+    const game = helper.search(gameName, games)
 
     if (game === undefined) {
-      return message.channel.send(`Sorry, but I couldn't find a game called '\`${gameName}\`'.`);
+      return message.channel.send(`Sorry, but I couldn't find a game called '\`${gameName}\`'.`)
     }
 
-    message.channel.send(formatMessage(message, game, client.avatarUrl));
+    message.channel.send(formatMessage(message, game, client.avatarUrl))
   }
 }
 
-function formatMessage(message, game, avatar) {
+function formatMessage (message, game, avatar) {
   return new Discord.MessageEmbed()
     .setTitle(game.name)
     .setImage(game.imageUrl)
@@ -36,22 +36,22 @@ function formatMessage(message, game, avatar) {
       {
         name: 'Main Story',
         value: `${game.gameplayMain} Hours`,
-        inline: true,
+        inline: true
       },
       {
         name: 'Main + Extras',
         value: `${game.gameplayMainExtra} Hours`,
-        inline: true,
+        inline: true
       },
       {
         name: 'Completionist',
         value: `${game.gameplayCompletionist} Hours`,
-        inline: true,
+        inline: true
       }
     )
     .setTimestamp()
     .setFooter(
-      `Stats provided by How Long To Beat`,
+      'Stats provided by How Long To Beat',
       avatar
-    );
+    )
 }
