@@ -26,10 +26,10 @@ module.exports = {
         .setColor(config.colour)
         .setTitle(helper.capitalise(command.name))
         .setDescription(command.description)
-        .addField('Usage', `**${helper.getCommandUsageString(command)}**`)
+        .addField('Usage', `\`${helper.getCommandUsageString(command)}\``)
 
       for (const arg of Object.values(command.args)) {
-        const name = arg.required ? arg.name : `${args.name} *(Optional)*`
+        const name = arg.required ? arg.name : `${arg.name} *(Optional)*`
         response.addField(name, arg.description, true)
       }
 
@@ -38,11 +38,11 @@ module.exports = {
 
     const response = new Discord.MessageEmbed()
       .setColor(config.colour)
-      .setTitle('Trotter')
-      .setDescription("Arguments with asterisks mean they're optional.")
+      .setTitle('Commands')
+      .setDescription('*Arguments with asterisks mean they\'re optional.*')
 
     for (const command of Object.values(commands)) {
-      const description = command.description + `\n** ${helper.getCommandUsageString(command)} **`
+      const description = `*${command.description}*` + `\n \`${helper.getCommandUsageString(command)}\``
       response.addField(helper.capitalise(command.name), description)
     }
 

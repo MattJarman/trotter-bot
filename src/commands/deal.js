@@ -29,7 +29,7 @@ module.exports = {
 
     const game = { ...found, ...overview }
 
-    await message.channel.send(formatMessage(message, game, client.avatarURL()))
+    await message.channel.send(formatMessage(message, game))
   }
 }
 
@@ -42,7 +42,7 @@ function mapResults (results) {
   return results
 }
 
-function formatMessage (message, game, avatar) {
+function formatMessage (message, game) {
   const attachment = new Discord.MessageAttachment(config.itad.icon, 'itad.jpg')
   return new Discord.MessageEmbed()
     .setAuthor('IsThereAnyDeal', 'attachment://itad.jpg', config.itad.url)
@@ -61,5 +61,5 @@ function formatMessage (message, game, avatar) {
       }
     )
     .setTimestamp()
-    .setFooter('Info provided by IsThereAnyDeal', avatar)
+    .setFooter('Info provided by IsThereAnyDeal')
 }
