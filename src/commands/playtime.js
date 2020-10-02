@@ -1,7 +1,7 @@
 const Discord = require('discord.js')
 const config = require('../../config')
 const Helper = require('../modules/Helper')
-const Steam = require('../modules/Steam')
+const SteamClient = require('../modules/SteamClient')
 const User = require('../sources/User')
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
   async execute (message, args, client) {
     const commandConfig = config.commands.playtime
     const helper = new Helper()
-    const steam = new Steam()
+    const steamClient = new SteamClient()
     const userModel = new User()
 
     if (!helper.isValidCommand(message, commandConfig, args)) {
@@ -25,7 +25,7 @@ module.exports = {
     }
 
     const steamId = user.steamid
-    const response = await steam.getUserGames(steamId).catch(err => console.error(err))
+    const { response } = await steamClient.getOwnedGames(steamId)
 
     if (!response) {
       return message.reply(`There was a problem retrieving your games. Please ensure that:\\n\\n\\t 1. Your Steam ID \`${steamId}
