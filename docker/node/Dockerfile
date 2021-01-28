@@ -4,6 +4,6 @@ RUN apk update && \
     mkdir -p /home/node/app/node_modules
 WORKDIR /home/node/app
 COPY package*.json ./
-USER node
 RUN npm install
+USER node
 COPY --chown=node:node . .
