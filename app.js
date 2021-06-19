@@ -1,9 +1,6 @@
-require('dotenv').config()
 const mongoose = require('mongoose')
 const config = require('./config')
 const Bot = require('./src/modules/Bot')
-
-const trotter = new Bot(config.token)
 
 function connect () {
   mongoose.connect(config.mongodb.uri, config.mongodb.options)
@@ -12,6 +9,8 @@ function connect () {
 
   db.once('open', () => {
     console.log('Connected to database.')
+
+    const trotter = new Bot(config.token)
     trotter.listen()
   }).catch((err) => {
     console.error(err)

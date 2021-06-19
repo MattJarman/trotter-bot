@@ -3,9 +3,6 @@ const config = require('../../config')
 const Discord = require('discord.js')
 const Helper = require('./Helper')
 
-const PREFIX = config.prefix
-const GROOVY_PREFIX = config.groovyPrefix
-
 class Bot {
   constructor (token) {
     this.client = new Discord.Client()
@@ -26,7 +23,7 @@ class Bot {
     this.client.on('ready', () => {
       console.log(`Logged in as ${this.client.user.tag}!`)
       this.updatePresence({
-        activity: { name: 'Unturned' },
+        activity: config.activity,
         status: 'online'
       })
     })
@@ -45,9 +42,10 @@ class Bot {
     const content = message.content
     const channel = message.channel
 
+    const messageIsCommand = [...config.botPrefixes, config.prefix].some(prefix => content.startsWith(prefix))
+
     if (
-      !content.startsWith(GROOVY_PREFIX) &&
-      !content.startsWith(PREFIX) &&
+      !messageIsCommand &&
       channel.name === 'music'
     ) {
       this.removeAndRespond(
@@ -60,11 +58,11 @@ class Bot {
   handleMessage (message) {
     const content = message.content
 
-    if (!content.startsWith(PREFIX) || message.author.bot) {
+    if (!content.startsWith(config.prefix) || message.author.bot) {
       return
     }
 
-    const args = content.slice(PREFIX.length).split(' ')
+    const args = content.slice(config.prefix.length).split(' ')
     const command = args.shift().toLowerCase()
 
     if (!this.client.commands.has(command)) return

@@ -1,13 +1,24 @@
-const path = require('path')
 const commands = require('./commands')
-const dev = require('./env/development')
+
+const {
+  TOKEN,
+  STEAM_API_KEY,
+  ISTHEREANYDEAL_API_KEY,
+  MONGO_USERNAME,
+  MONGO_PASSWORD,
+  MONGO_HOSTNAME,
+  MONGO_PORT,
+  MONGO_DB
+} = process.env
 
 const defaults = {
-  root: path.join(__dirname, '..'),
   prefix: '!',
-  groovyPrefix: '-',
-  timeout: 10000,
+  botPrefixes: ['-'],
   colour: '#1DB954',
+  timeout: 3000,
+  activity: {
+    name: 'Unturned'
+  },
   bulkDelete: {
     max: 100,
     min: 1
@@ -15,14 +26,40 @@ const defaults = {
   hltb: {
     url: 'https://howlongtobeat.com'
   },
-  music: {
-    fortunateSon: {
-      link: 'https://www.youtube.com/watch?v=ZWijx_AgPiA',
-      length: 76000
+  token: TOKEN,
+  mongodb: {
+    uri: `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}?authSource=admin`,
+    options: {
+      useNewUrlParser: true,
+      connectTimeoutMS: 10000,
+      useUnifiedTopology: true
+    }
+  },
+  steam: {
+    api: {
+      key: STEAM_API_KEY,
+      baseURL: 'https://api.steampowered.com/',
+      routes: {
+        ownedGames: 'IPlayerService/GetOwnedGames/v1/'
+      }
+    },
+    imageBaseURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/'
+  },
+  itad: {
+    icon: 'public/img/itad.jpg',
+    url: 'https://isthereanydeal.com/',
+    api: {
+      key: ISTHEREANYDEAL_API_KEY,
+      baseURL: 'https://api.isthereanydeal.com/v01/',
+      routes: {
+        search: 'search/search/',
+        overview: 'game/overview/'
+      }
     }
   }
 }
 
 module.exports = {
-  dev: Object.assign({}, dev, defaults, commands)
+  dev: Object.assign({}, defaults, commands),
+  production: Object.assign({}, defaults, commands)
 }[process.env.NODE_ENV || 'dev']
