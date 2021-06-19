@@ -1,32 +1,21 @@
 version: '3'
 
 services:
-  nodejs:
-    build:
-      context: .
-      dockerfile: docker/node/Dockerfile
-    image: nodejs
-    container_name: nodejs
+  trot_node:
+    image: node:14-alpine
     restart: unless-stopped
+    working_dir: /home/node
     env_file: .env
-    environment:
-      - MONGO_USERNAME=$MONGO_USERNAME
-      - MONGO_PASSWORD=$MONGO_PASSWORD
-      - MONGO_HOSTNAME=db
-      - MONGO_PORT=$MONGO_PORT
-      - MONGO_DB=$MONGO_DB
     ports:
       - "80:8080"
     volumes:
-      - .:/home/node/app
-      - node_modules:/home/node/app/node_modules
+      - .:/home/node
     networks:
       - app-network
-    command: scripts/wait-for.sh db:27017 -- /home/node/app/node_modules/.bin/nodemon app.js 
+    command: "npm start"
 
-  db:
-    image: mongo:4.1.8-xenial
-    container_name: db
+  trot_db:
+    image: mongo:4.0.25-xenial
     restart: unless-stopped
     env_file: .env
     environment:
@@ -43,4 +32,3 @@ networks:
 
 volumes:
   dbdata:
-  node_modules:  

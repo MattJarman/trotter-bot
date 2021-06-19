@@ -22,11 +22,11 @@ You will also need a [Discord Developer](https://discordapp.com/developers) acco
     $ cd trotter-bot/
     
 #### Setup
-> Copy the env example to new env file
+> Run the install script
 
-    $ cp .env.sample .env
+    $ ./scripts/install.sh
 
-> Open the env file you just created with a text editor and insert your tokens
+> Insert tokens
 
     $ vim .env
     TOKEN=YOUR_DISCORD_BOT_TOKEN_HERE
@@ -34,10 +34,6 @@ You will also need a [Discord Developer](https://discordapp.com/developers) acco
     ISTHEREANYDEAL_API_KEY=YOUR_ISTHEREANYDEAL_API_KEY_HERE
     ...
  
- > Run the `start.sh` script in the project root
+ > Start the containers
  
-    $ ./start.sh
-    
- > To stop the application, run the `stop.sh` script
- 
-     $ ./stop.sh
+    $ docker-compose up -d

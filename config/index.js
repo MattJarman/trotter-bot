@@ -12,6 +12,9 @@ const defaults = {
     max: 100,
     min: 1
   },
+  hltb: {
+    url: 'https://howlongtobeat.com'
+  },
   music: {
     fortunateSon: {
       link: 'https://www.youtube.com/watch?v=ZWijx_AgPiA',

@@ -30,7 +30,7 @@ module.exports = {
 function formatMessage (message, game, avatar) {
   return new Discord.MessageEmbed()
     .setTitle(game.name)
-    .setImage(game.imageUrl)
+    .setImage(`${config.hltb.url}${game.imageUrl}`)
     .setColor(config.colour)
     .addFields(
       {
